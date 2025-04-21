@@ -43,4 +43,4 @@ print(f"Coeficiente (β₁): {modelo.coef_}")
 
 # Punto de decisión (donde probabilidad = 50%)
 punto_decision = -modelo.intercept_ / modelo.coef_
-print(f"Edad de decisión: {punto_decision[0][0]} años")
+print(f"Eda
