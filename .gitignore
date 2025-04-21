@@ -1,0 +1,33 @@
+
+# Auto-generated patterns
+# Archivos generados automáticamente
+git_autocommit.py
+.processing_status
+.processing_completed
+# Directorios
+original_py/
+*env/
+__pycache__/
+.pytest_cache/
+# Extensiones de archivo
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+# Archivos multimedia
+*.jpg *.jpeg *.png *.gif *.svg
+*.mp4 *.mov *.avi *.mkv
+*.mp3 *.wav *.ogg
+# Documentos
+*.pdf *.docx *.xlsx *.pptx
+# Entornos virtuales
+.venv/
+venv/
+env/
+# Configuraciones de IDE
+.vscode/
+.idea/
+# Archivos del sistema
+.DS_Store
+Thumbs.db
