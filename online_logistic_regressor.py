@@ -94,4 +94,49 @@ def train_offline(model, criterion, optimizer, train_loader, epochs):
         losses.append(avg_loss)
         accuracies.append(accuracy)
         
-        print(f'Epoch {epoch+1}/{epochs}, Loss: {avg_loss:
+        print(f'Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}')
+    
+    return losses, accuracies
+
+# Entrenamiento online con visualización
+def train_online(model, criterion, optimizer, online_loader, test_loader):
+    model.train()
+    losses = []
+    accuracies = []
+    test_accuracies = []
+    
+    plt.ion()
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    
+    correct = 0
+    total = 0
+    
+    for i, (inputs, labels) in enumerate(online_loader):
+        # Forward pass
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        
+        # Backward pass y optimización
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        # Estadísticas
+        losses.append(loss.item())
+        predicted = (outputs >= 0.5).float()
+        correct += (predicted == labels).sum().item()
+        total += labels.size(0)
+        accuracy = correct / total
+        accuracies.append(accuracy)
+        
+        # Evaluación periódica en test
+        if i % 100 == 0:
+            test_acc = evaluate(model, test_loader)
+            test_accuracies.append(test_acc)
+            
+            # Actualizar gráficos
+            ax1.clear()
+            ax2.clear()
+            
+            ax1.plot(losses, label='Pérdida online')
+            ax1.set_title('Pérdida durante entrenamiento online'
