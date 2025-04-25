@@ -139,4 +139,48 @@ def train_online(model, criterion, optimizer, online_loader, test_loader):
             ax2.clear()
             
             ax1.plot(losses, label='Pérdida online')
-            ax1.set_title('Pérdida durante entrenamiento online'
+            ax1.set_title('Pérdida durante entrenamiento online')
+            ax1.legend()
+            
+            ax2.plot(accuracies, label='Precisión online')
+            ax2.plot(np.linspace(0, len(accuracies)-1, len(test_accuracies)), 
+                     test_accuracies, label='Precisión test', color='red')
+            ax2.set_title('Precisión durante entrenamiento online')
+            ax2.legend()
+            
+            plt.tight_layout()
+            plt.draw()
+            plt.pause(0.01)
+    
+    plt.ioff()
+    plt.show()
+    return losses, accuracies, test_accuracies
+
+# Evaluación del modelo
+def evaluate(model, test_loader):
+    model.eval()
+    correct = 0
+    total = 0
+    
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            outputs = model(inputs)
+            predicted = (outputs >= 0.5).float()
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+    
+    accuracy = correct / total
+    return accuracy
+
+# Función principal
+def main(filename):
+    # Cargar datos
+    (X_offline, y_offline), (X_online, y_online), (X_test, y_test) = load_data(filename)
+    
+    # Crear DataLoaders
+    offline_dataset = Dataset(X_offline, y_offline)
+    online_dataset = Dataset(X_online, y_online)
+    test_dataset = Dataset(X_test, y_test)
+    
+    offline_loader = torch.utils.data.DataLoader(offline_dataset, batch_size=32, shuffle=True)
+    online_loader = torch.utils.data.DataLoader(online_datas
