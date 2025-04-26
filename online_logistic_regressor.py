@@ -183,4 +183,31 @@ def main(filename):
     test_dataset = Dataset(X_test, y_test)
     
     offline_loader = torch.utils.data.DataLoader(offline_dataset, batch_size=32, shuffle=True)
-    online_loader = torch.utils.data.DataLoader(online_datas
+    online_loader = torch.utils.data.DataLoader(online_dataset, batch_size=1, shuffle=True)  # Batch size 1 para online
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32)
+    
+    # Inicializar modelo
+    input_dim = X_offline.shape[1]
+    model = LogisticRegression(input_dim).to(device)
+    criterion = nn.BCELoss()
+    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE)
+    
+    # 1. Entrenamiento offline
+    print("=== Entrenamiento Offline ===")
+    offline_losses, offline_accuracies = train_offline(
+        model, criterion, optimizer, offline_loader, EPOCHS_OFFLINE
+    )
+    
+    # 2. Entrenamiento online
+    print("\n=== Entrenamiento Online ===")
+    online_losses, online_accuracies, test_accuracies = train_online(
+        model, criterion, optimizer, online_loader, test_loader
+    )
+    
+    # 3. Evaluación final
+    final_accuracy = evaluate(model, test_loader)
+    print(f"\nPrecisión final en test: {final_accuracy:.4f}")
+
+if __name__ == '__main__':
+    datafile = "diabetes.csv"
+    main(datafile)
