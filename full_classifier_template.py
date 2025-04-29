@@ -130,4 +130,23 @@ def main():
 
     # 2. Crear DataLoaders
     train_dataset = CustomDataset(X_train.astype(np.float32), y_train.astype(np.long))
-    val_dataset = CustomDataset(X_val.astype(np.float32), y_val
+    val_dataset = CustomDataset(X_val.astype(np.float32), y_val.astype(np.long))
+    
+    train_loader = DataLoader(train_dataset, batch_size=CONFIG['batch_size'], shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=CONFIG['batch_size'])
+
+    # 3. Inicializar modelo
+    model = Classifier(input_dim=20, num_classes=CONFIG['num_classes']).to(DEVICE)
+    print(model)
+
+    # 4. Entrenar
+    train_model(model, train_loader, val_loader, CONFIG)
+
+    # 5. Evaluar (opcional)
+    # Cargar mejor modelo
+    model.load_state_dict(torch.load('best_model.pt'))
+    test_accuracy, _ = evaluate_model(model, val_loader, nn.CrossEntropyLoss())
+    print(f"\nFinal Test Accuracy: {test_accuracy:.2%}")
+
+if __name__ == '__main__':
+    main()
