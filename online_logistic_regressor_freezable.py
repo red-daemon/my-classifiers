@@ -76,3 +76,68 @@ def train_offline(model, criterion, optimizer, train_loader, epochs):
     losses = []
     accuracies = []
     
+    for epoch in range(epochs):
+        total_loss = 0
+        correct = 0
+        total = 0
+        
+        for inputs, labels in train_loader:
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            total_loss += loss.item()
+            predicted = (outputs >= 0.5).float()
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+        
+        avg_loss = total_loss / len(train_loader)
+        accuracy = correct / total
+        losses.append(avg_loss)
+        accuracies.append(accuracy)
+        
+        print(f'Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}')
+    
+    return losses, accuracies
+
+# Entrenamiento online modificado para aplicar máscara de congelación
+def train_online(model, criterion, optimizer, online_loader, test_loader):
+    model.train()
+    losses = []
+    accuracies = []
+    test_accuracies = []
+    
+    plt.ion()
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+    
+    correct = 0
+    total = 0
+    
+    for i, (inputs, labels) in enumerate(online_loader):
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        
+        optimizer.zero_grad()
+        loss.backward()
+        
+        # Aplicar máscara de congelación antes del paso de optimización
+        model.apply_freeze_mask()
+        
+        optimizer.step()
+        
+        losses.append(loss.item())
+        predicted = (outputs >= 0.5).float()
+        correct += (predicted == labels).sum().item()
+        total += labels.size(0)
+        accuracy = correct / total
+        accuracies.append(accuracy)
+        
+        if i % 100 == 0:
+            test_acc = evaluate(model, test_loader)
+            test_accuracies.append(test_acc)
+            
+            ax1.clear()
+            ax2.cle
