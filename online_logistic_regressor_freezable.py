@@ -184,4 +184,26 @@ def main(filename):
     test_dataset = Dataset(X_test, y_test)
     
     offline_loader = torch.utils.data.DataLoader(offline_dataset, batch_size=32, shuffle=True)
-    online_loader 
+    online_loader = torch.utils.data.DataLoader(online_dataset, batch_size=1, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32)
+    
+    input_dim = X_offline.shape[1]
+    model = LogisticRegression(input_dim).to(device)
+    criterion = nn.BCELoss()
+    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE)
+    
+    # 1. Entrenamiento offline
+    print("=== Entrenamiento Offline ===")
+    train_offline(model, criterion, optimizer, offline_loader, EPOCHS_OFFLINE)
+    
+    # 2. Configurar máscara de congelación
+    print("\n=== Configurando máscara de congelación ===")
+    freeze_mask = torch.zeros(input_dim, dtype=torch.bool)
+    num_freeze = int(input_dim * FREEZE_RATIO)
+    freeze_mask[:num_freeze] = True  # Congelar primeros features
+    model.set_freeze_mask(freeze_mask)
+    print(f"Congelando {num_freeze}/{input_dim} pesos de características")
+    
+    # 3. Entrenamiento online con pesos congelados
+    print("\n=== Entrenamiento Online con Pesos Congelados ===")
+    train_online(model, criterion, optimizer, online_loader, tes
