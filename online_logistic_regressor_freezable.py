@@ -206,4 +206,12 @@ def main(filename):
     
     # 3. Entrenamiento online con pesos congelados
     print("\n=== Entrenamiento Online con Pesos Congelados ===")
-    train_online(model, criterion, optimizer, online_loader, tes
+    train_online(model, criterion, optimizer, online_loader, test_loader)
+    
+    # 4. Evaluación final
+    final_accuracy = evaluate(model, test_loader)
+    print(f"\nPrecisión final en test: {final_accuracy:.4f}")
+
+if __name__ == '__main__':
+    datafile = "diabetes.csv"
+    main(datafile)
