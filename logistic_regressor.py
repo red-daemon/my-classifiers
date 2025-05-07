@@ -32,4 +32,43 @@ train_dataset = BinaryClassificationDataset(X_train, y_train)
 test_dataset = BinaryClassificationDataset(X_test, y_test)
 
 batch_size = 2
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shu
+train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+
+class LogisticRegression(nn.Module):
+    def __init__(self, n_input_features):
+        super().__init__()
+        self.linear = nn.Linear(n_input_features, 1)
+
+    def forward(self, x):
+        y_predicted = torch.sigmoid(self.linear(x))
+        return y_predicted
+
+# Instantiate the model
+n_input_features = X.shape[1]
+model = LogisticRegression(n_input_features)
+
+# Loss and optimizer
+learning_rate = 0.01
+criterion = nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+num_epochs = 100
+for epoch in range(num_epochs):
+    for i, (inputs, labels) in enumerate(train_loader):
+        # Forward pass
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+
+        # Backward and optimize
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    if (epoch+1) % 10 == 0:
+        print (f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for inputs, labels in
