@@ -71,4 +71,11 @@ for epoch in range(num_epochs):
 with torch.no_grad():
     correct = 0
     total = 0
-    for inputs, labels in
+    for inputs, labels in test_loader:
+        outputs = model(inputs)
+        predicted = (outputs > 0.5).float()
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    accuracy = correct / total
+    print(f'Accuracy on the test set: {accuracy:.4f}')
